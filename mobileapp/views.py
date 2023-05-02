@@ -1,14 +1,17 @@
 from django.shortcuts import render
 from rest_framework.views import APIView
-from rest_framework import viewsets
+from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework.status import *
-from .serializers import MobileAppSerializers
+from .serializers import MobileAppSerializers, UserMobileAppSerializers, UserSerializer
 from rest_framework.response import Response
 
 from .models import MobileApp
 
 
 class MobileAppView(APIView):
+
+    permission_classes = [IsAdminUser, IsAuthenticated]
+
     def get(self, request, *args, **kwargs):
         """
         Get all mobile apps
@@ -33,6 +36,9 @@ class MobileAppView(APIView):
 
 
 class MobileAppDetailView(APIView):
+
+    permission_classes = [IsAdminUser, IsAuthenticated]
+
     def get_data(self, app_id: int):
         """
         Helper method to get app based on id
@@ -88,3 +94,27 @@ class MobileAppDetailView(APIView):
 
         app = app.delete()
         return Response({"message": "App deleted successfully"}, status=200)
+
+
+class UserMobileAppView(APIView):
+
+    permission_classes = [IsAuthenticated]
+
+
+    def post(self, request, id):
+        data = request.data.copy()
+        user = UserSerializer(request.user)
+        user = user.data
+
+        data.update({
+            "mobile_app":id,
+            "user": user.get("id")
+        })
+        user_app = UserMobileAppSerializers(data=data)
+        
+        if not user_app.is_valid():
+            return Response(data=user_app.errors, status=422)
+
+        user_app = user_app.save()
+        
+        return Response(data={"message": "Screenshot uploaded successfully"}, status=201)
