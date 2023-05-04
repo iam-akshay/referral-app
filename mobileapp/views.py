@@ -10,7 +10,7 @@ from .models import MobileApp
 
 class MobileAppView(APIView):
 
-    permission_classes = [IsAdminUser, IsAuthenticated]
+    permission_classes = [IsAuthenticated]
 
     def get(self, request, *args, **kwargs):
         """
@@ -24,6 +24,12 @@ class MobileAppView(APIView):
         """
         Add new mobile app
         """
+        if not request.user.is_superuser:
+            return Response(
+                {'error': 'You are not authorized to perform this action.'}, 
+                status=401
+            )
+
         apps = MobileAppSerializers(data=request.data)
         if not apps.is_valid():
             errors = apps.errors

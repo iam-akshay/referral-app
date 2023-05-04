@@ -1,5 +1,5 @@
 import { RouterProvider, createBrowserRouter } from 'react-router-dom';
-import { AppsPage, LoginPage } from './pages';
+import { AddAppsPage, AppsPage, LoginPage } from './pages';
 
 function App() {
   const router = createBrowserRouter([
@@ -10,6 +10,10 @@ function App() {
     {
       path: '/apps',
       element: <AppsPage />
+    },
+    {
+      path: '/apps/add',
+      element: <AddAppsPage />
     }
   ]);
 
